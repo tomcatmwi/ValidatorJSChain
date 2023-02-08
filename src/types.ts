@@ -740,7 +740,7 @@ export interface NormalizeEmailOptions {
     icloud_remove_subaddress?: boolean;
 }
 
-export interface ValidationChainStatus {
+export interface ValidatorJSChainStatus {
     bailed: boolean;
     suspended: boolean;
     invertNext: boolean;
@@ -748,7 +748,7 @@ export interface ValidationChainStatus {
     results: Record<string, any>;
 }
 
-export interface ValidationChainInput {
+export interface ValidatorJSChainInput {
     label: string;
     value: unknown;
 }

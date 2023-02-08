@@ -36,11 +36,11 @@ import {
     TaxIDLocale,
     UUIDVersion,
     VATCountryCode,
-    ValidationChainStatus,
-    ValidationChainInput,
+    ValidatorJSChainStatus,
+    ValidatorJSChainInput,
 } from './types';
 
-const defaultValidatorStatus: ValidationChainStatus = {
+const defaultValidatorStatus: ValidatorJSChainStatus = {
     bailed: false,
     suspended: false,
     invertNext: false,
@@ -48,17 +48,17 @@ const defaultValidatorStatus: ValidationChainStatus = {
     results: {},
 };
 
-export default class ValidatorChain {
+export default class ValidatorJSChain {
     constructor() {}
 
     //  Stores the currently validated value
-    private input: ValidationChainInput = {
+    private input: ValidatorJSChainInput = {
         label: '',
         value: undefined,
     };
 
     //  Stores the current state of the validation chain
-    private status: ValidationChainStatus = defaultValidatorStatus;
+    private status: ValidatorJSChainStatus = defaultValidatorStatus;
 
     //  Utilities ---------------------------------------------
 
