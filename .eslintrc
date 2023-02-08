@@ -1,0 +1,41 @@
+{
+    "root": true,
+    "ignorePatterns": ["./node_modules/", "./dist"],
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["prettier", "@typescript-eslint"],
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true,
+        "jest": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "rules": {
+        "newline-per-chained-call": ["off", { "ignoreChainWithDepth": 2 }],
+        "implicit-arrow-linebreak": "off",
+        "indent": "off",
+        "multiline-ternary": "off",
+        "no-tabs": "error",
+        "padded-blocks": "off",
+        "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+        "no-shadow": "off",
+        "no-use-before-define": "off",
+        "no-undef": "off",
+        "no-unused-vars": "off",
+        "no-async-promise-executor": "off",
+        "prettier/prettier": "error",
+        "prefer-rest-params": "off",
+        "@typescript-eslint/no-use-before-define": "error",
+        "@typescript-eslint/no-shadow": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-var-requires": "off"
+    }
+}
