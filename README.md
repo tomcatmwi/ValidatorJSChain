@@ -8,7 +8,7 @@ Experimental, still under development. Please report bugs, I like to ignore them
 ## How to install
 
 ```
-npm i validatorjs-chain
+npm i validator validatorjs-chain
 ```
 
 ## Basic usage
