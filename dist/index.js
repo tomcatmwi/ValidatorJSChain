@@ -123,7 +123,12 @@ class ValidatorJSChain {
             !this.status.bailed &&
             !this.status.suspended &&
             this.status.results[this.input?.label][this.status?.lastValidator].error)
-            this.status.results[this.input?.label][this.status?.lastValidator].message = generator(this.input?.value);
+            this.status.results[this.input?.label][this.status?.lastValidator].message =
+                generator?.constructor?.name === 'String'
+                    ?
+                        generator
+                    :
+                        generator(this.input?.value);
         return this;
     }
     custom(validator, ...args) {

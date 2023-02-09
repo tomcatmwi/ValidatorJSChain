@@ -207,7 +207,13 @@ export default class ValidatorJSChain {
             !this.status.suspended &&
             this.status.results[this.input?.label][this.status?.lastValidator].error
         )
-            this.status.results[this.input?.label][this.status?.lastValidator].message = generator(this.input?.value);
+            //  prettier-ignore
+            this.status.results[this.input?.label][this.status?.lastValidator].message = 
+                generator?.constructor?.name === 'String' 
+                ? 
+                generator 
+                : 
+                generator(this.input?.value);
 
         return this;
     }
