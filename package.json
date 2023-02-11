@@ -2,7 +2,7 @@
     "name": "validatorjs-chain",
     "author": "Tamas Polgar",
     "license": "Apache-2.0",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "description": "A dependency to build validator chains with validator.js",
     "main": "dist/index.js",
     "engines": {

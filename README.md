@@ -1,9 +1,9 @@
 # ValidatorJSChain
 
-### Version 1.00
+### Version 1.05
 
 A framework-agnostic validator and sanitizer chain inspired by `express-validator`. Very useful for GraphQL resolvers!
-Experimental, still under development. Please report bugs, I like to ignore them.
+Experimental, still under development. Please report bugs so I can ignore them.
 
 ## How to install
 
@@ -52,6 +52,7 @@ The output will be:
 0
 {
   "myEmailAddress": {
+    "value": "somedude@company.com",
     "isEmail": {
       "error": false
     },
@@ -77,6 +78,7 @@ Result:
 ```
 {
   "email": {
+    "value": "somedude@company.com",
     "isEmail_0": {
       "error": false
     },
@@ -89,6 +91,49 @@ Result:
   }
 }
 
+```
+
+## Sanitizers
+
+As you can see in the previous example, the result returned by the `.results` getter contains a `value` field. This is holding the value passed to the chain, and every sanitizer will change it. Extract this value to update your original variables. For example:
+
+```
+const validatorChain = new ValidatorChain();
+let myValue = '  This string is going to be trimmed  ';
+
+validatorChain()
+  .setValue('myValue', myValue)
+  .trim()
+
+myValue = validatorChain.results.myValue.value;
+console.log('"' + myValue + '"');
+```
+
+This should output:
+
+```
+"This string is going to be trimmed"
+```
+
+Alternatively you can use the `values` property to get a key-value list of all values passed to the validator chain:
+
+```
+console.log(validatorChain.values);
+```
+
+Result:
+
+```
+{ myValue: 'This string is going to be trimmed' }
+```
+
+Note that `validate.js` validators only accept string values, and they will emit strings as well. `ValidatorJSChain` will convert any value passed to the chain to a string, and as a consequence, the corresponding `value` will be a string too. To change this, use type conversion sanitizers, like `toInt()`:
+
+```
+validatorChain()
+  setValue('myNumber', 1541)
+  .isInt({ min: 1000, max: 2000 })
+  .toInt()
 ```
 
 ## Validating data structures
@@ -125,6 +170,7 @@ The above example will produce the following console output:
 ```
 {
   "name": {
+    "value": "John Doe",
     "isLength": {
       "error": false
     },
@@ -133,11 +179,13 @@ The above example will produce the following console output:
     }
   },
   "office": {
+    "vale": "1541",
     "isInt": {
       "error": false
     }
   },
   "email": {
+    "value": "somedude@company.com",
     "isEmail": {
       "error": false
     },
@@ -168,6 +216,7 @@ Output:
 ```
 {
   "name": {
+    "value": "John Doe",
     "equals": {
       "error": true
     }
@@ -241,6 +290,7 @@ Output:
 ```
 {
   email: {
+    value: "totally not an email",
     isEmail: {
       error: true,
       message: 'Invalid email address: "totally not an email"'
@@ -284,25 +334,27 @@ validatorJSChain()
 
 ## Properties
 
-| Property                | Explanation                                                    |
-| ----------------------- | -------------------------------------------------------------- |
-| `errorCount: number`    | The number of errors found during the entire validation chain. |
-| `lastValidator: string` | Name of the last validator executed                            |
-| `results: object`       | List of results                                                |
-| `value: any`            | The currently verified value (without label)                   |
+| Property                       | Explanation                                                    |
+| ------------------------------ | -------------------------------------------------------------- |
+| `errorCount: number`           | The number of errors found during the entire validation chain. |
+| `lastValidator: string`        | Name of the last validator executed                            |
+| `results: Record<string, any>` | List of results                                                |
+| `value: string`                | The currently verified value (without label)                   |
+| `values: Record<string, any>`  | All values passed to the chain, sanitized                      |
 
 ## Methods
 
-| Method                                                      | Explanation                                                                                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bail()`                                                    | If the previous validator did not pass, no more validators or sanitizers will be executed until `unbail()` or `clearResults()` are called, or `setValue()` with `unbail = true`.<br />**WARNING:** The bail flag is persistent. If you reuse the same `ValidatorJSChain` instance for another validation, use the first `setValue()` call with the `unbail` argument to clear it. |
-| `clearResults()`                                            | Clears all previous validation results                                                                                                                                                                                                                                                                                                                                            |
-| `custom(validator: (value: any) => boolean, ...args)`       | Executes a custom validator. The passed function will receive the currently validated value as `value`, along with any arguments specified after.                                                                                                                                                                                                                                 |
-| `customSanitizer(sanitizer: (value: any) => any, ...args)`  | Executes a custom sanitizer. Works the same way as `custom()`. The output of `sanitizer` will replace the currently validated value.                                                                                                                                                                                                                                              |
-| `if(condition: (value: any) => boolean)`                    | Validators and sanitizers after this method call will be skipped if the passed function returns `false`, until the next `endIf()` or `setValue()` call.                                                                                                                                                                                                                           |
-| `optional()`                                                | If the validated value is falsy, no more validators will be executed until the next `setValue()` call.                                                                                                                                                                                                                                                                            |
-| `not()`                                                     | Inverts the next validator. An error will be detected if the value passes.                                                                                                                                                                                                                                                                                                        |
-| `peek(executor: (value: any) => any)`                       | Passes the currently validated value to `executor()` and runs it. The validation chain will not be affected. This method allows you to tap into the validation chain and extract the current value.                                                                                                                                                                               |
-| `setValue(label: string, value: any, unbail = false)`       | Sets a new value to be validated.<br />`label` Label of the validator for the results list<br />`value` The value to be validated or sanitized<br />`unbail` If earlier you called `.bail()`, and this argument is `false`, `bail()` will remain in effect. All validators and sanitizers will still be skipped.                                                                  |
-| `unbail()`                                                  | If `bail()` was called earlier, the execution of the chain resumes after calling this method.                                                                                                                                                                                                                                                                                     |
-| `withMessage(generator: (value?: any) => string \| object)` | Adds a custom error message. If the previous validator did not pass, the output of `generator()` will be added to the error message as `message`.                                                                                                                                                                                                                                 |
+| Method                                                                   | Explanation                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bail()`                                                                 | If the previous validator did not pass, no more validators or sanitizers will be executed until `unbail()` or `clearResults()` are called, or `setValue()` with `unbail = true`.<br />**WARNING:** The bail flag is persistent. If you reuse the same `ValidatorJSChain` instance for another validation, use the first `setValue()` call with the `unbail` argument to clear it. |
+| `clearResults()`                                                         | Clears all previous validation results                                                                                                                                                                                                                                                                                                                                            |
+| `custom(validator: (value: any) => boolean, ...args)`                    | Executes a custom validator. The passed function will receive the currently validated value as `value`, along with any arguments specified after.                                                                                                                                                                                                                                 |
+| `customSanitizer(sanitizer: (value: any) => any, ...args)`               | Executes a custom sanitizer. Works the same way as `custom()`. The output of `sanitizer` will replace the currently validated value.                                                                                                                                                                                                                                              |
+| `default(value)`                                                         | If the value currently in the pipeline is falsy, this method changes it to the specified value.                                                                                                                                                                                                                                                                                   |
+| `if(condition: (value: any) => boolean)`                                 | Validators and sanitizers after this method call will be skipped if the passed function returns `false`, until the next `endIf()` or `setValue()` call.                                                                                                                                                                                                                           |
+| `optional()`                                                             | If the validated value is falsy, no more validators will be executed until the next `setValue()` call.                                                                                                                                                                                                                                                                            |
+| `not()`                                                                  | Inverts the next validator. An error will be detected if the value passes.                                                                                                                                                                                                                                                                                                        |
+| `peek(executor: (value: any) => any)`                                    | Passes the currently validated value to `executor()` and runs it. The validation chain will not be affected. This method allows you to tap into the validation chain and extract the current value.                                                                                                                                                                               |
+| `setValue(label: string, value: any, unbail = false)`                    | Sets a new value to be validated.<br />`label` Label of the validator for the results list<br />`value` The value to be validated or sanitized<br />`unbail` If earlier you called `.bail()`, and this argument is `false`, `bail()` will remain in effect. All validators and sanitizers will still be skipped.                                                                  |
+| `unbail()`                                                               | If `bail()` was called earlier, the execution of the chain resumes after calling this method.                                                                                                                                                                                                                                                                                     |
+| `withMessage(generator: (value?: any) => string \| Record<string, any>)` | Adds a custom error message. If the previous validator did not pass, the output of `generator()` will be added to the error message as `message`.                                                                                                                                                                                                                                 |

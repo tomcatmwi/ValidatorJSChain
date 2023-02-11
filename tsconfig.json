@@ -1,27 +1,25 @@
 {
-  "compilerOptions": {
-    "rootDirs": ["src"],
-    "outDir": "dist",
-    "module": "CommonJS",
-    "lib": ["ES2022"],
-    "target": "ES2022",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "types": ["node"],
-    "rootDir": "src",
-    "removeComments": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noImplicitAny": false,
-    "alwaysStrict": true,
-    "allowUnreachableCode": true,
-    "skipLibCheck": true
-  },
-  "include": ["./src/*.ts"],
-  "files": [
-    "./node_modules/@types/mocha/index.d.ts",
-    "./node_modules/@types/node/index.d.ts"
-  ]
+    "compilerOptions": {
+        "rootDirs": ["src"],
+        "outDir": "dist",
+        "module": "CommonJS",
+        "lib": ["ES2022"],
+        "target": "ES2022",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "types": ["node"],
+        "rootDir": "src",
+        "removeComments": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "useUnknownInCatchVariables": false,
+        "strict": true,
+        "noImplicitAny": false,
+        "alwaysStrict": true,
+        "allowUnreachableCode": true,
+        "skipLibCheck": true
+    },
+    "include": ["./src/*.ts"],
+    "files": ["./node_modules/@types/mocha/index.d.ts", "./node_modules/@types/node/index.d.ts"]
 }

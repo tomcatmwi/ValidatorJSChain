@@ -740,15 +740,41 @@ export interface NormalizeEmailOptions {
     icloud_remove_subaddress?: boolean;
 }
 
-export interface ValidatorJSChainStatus {
-    bailed: boolean;
-    suspended: boolean;
-    invertNext: boolean;
-    lastValidator: string | undefined;
-    results: Record<string, any>;
+//  Input format for setValue()
+export interface ValidatorJSChainInput {
+    label: string | null;
+    value: unknown;
 }
 
-export interface ValidatorJSChainInput {
-    label: string;
-    value: unknown;
+//  Status object root
+export interface ValidatorJSChainStatus {
+    //  Flag for bail() - indicates no more validators/sanitizers will run
+    bailed: boolean;
+    //  Flag for if() and endif()
+    suspended: boolean;
+    //  Flag for not()
+    invertNext: boolean;
+    //  Name of the last validator, for error tracking purposes
+    lastValidator?: string | undefined;
+    //  The result object returned by .result()
+    results?: ValidatorJSChainResult;
+}
+
+//  A result object entry. Key is the label set by setValue()
+export interface ValidatorJSChainResult extends Record<string, any> {
+    [key: string]: ValidatorJSChainElementStatus | unknown;
+}
+
+//  Status of a value passed to the validator chain
+export interface ValidatorJSChainElementStatus extends Record<string, any> {
+    //  The current value, after all validators/sanitizers
+    value: any;
+    //  Errors
+    [key: string]: ValidatorJSChainElementError | unknown;
+}
+
+//  A single error object
+export interface ValidatorJSChainElementError {
+    error: boolean;
+    message?: string | Record<string, any>;
 }

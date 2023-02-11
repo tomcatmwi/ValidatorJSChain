@@ -8,25 +8,35 @@ const defaultValidatorStatus = {
     bailed: false,
     suspended: false,
     invertNext: false,
-    lastValidator: undefined,
-    results: {},
 };
 class ValidatorJSChain {
     constructor() { }
     input = {
-        label: '',
+        label: null,
         value: undefined,
     };
     status = defaultValidatorStatus;
     get errorCount() {
         let errors = 0;
-        Object.keys(this.status.results).forEach(label => {
-            Object.keys(this.status.results[label]).forEach(validator => {
-                if (this.status.results[label][validator].error)
+        if (!this.status.results)
+            return errors;
+        const results = this.status.results;
+        Object.keys(results).forEach(label => {
+            Object.keys(results[label])
+                .filter(x => x !== 'value')
+                .forEach(validator => {
+                if (results[label][validator].error)
                     errors++;
             });
         });
         return errors;
+    }
+    get values() {
+        if (!this.status.results)
+            return;
+        const retval = {};
+        Object.keys(this.status.results).forEach(key => (retval[key] = this.status.results[key].value));
+        return retval;
     }
     get results() {
         return { ...this.status.results };
@@ -42,27 +52,38 @@ class ValidatorJSChain {
         return this;
     }
     setValue(label, value, unbail = false) {
+        if (unbail)
+            this.status.bailed = false;
         if (this.status.bailed || this.status.suspended)
             return this;
-        if (!label || Object.keys(this.status.results).includes(label))
+        if (!label || (!!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${label}"`;
         if (value !== null && value !== undefined && value.constructor.name !== 'string')
             value = String(value);
-        if (unbail)
-            this.status.bailed = false;
         this.status.suspended = false;
         this.status.lastValidator = null;
         this.status.invertNext = false;
         this.input = { label, value };
+        if (!this.status.results)
+            this.status.results = {};
+        this.status.results[label] = {
+            value,
+        };
         return this;
     }
     validatorMethod(executor, ...args) {
-        if (!this.status.results[this.input?.label])
-            this.status.results[this.input?.label] = {};
+        if (!this.input.label)
+            return this;
+        if (!this.status.results)
+            this.status.results = {};
+        if (!this.status.results[this.input.label])
+            this.status.results[this.input.label] = {
+                value: this.input.value
+            };
         if (this.status.bailed || this.status.suspended)
             return this;
         let executorName = executor.name || 'custom';
-        const results = this.status.results[this.input?.label];
+        const results = this.status.results[this.input.label];
         const regExp = new RegExp('^(' + executorName + ')(_d+)?', 'g');
         const previousValidators = Object.keys(results)
             .filter(key => !!key.match(regExp));
@@ -85,6 +106,15 @@ class ValidatorJSChain {
         if (this.status.bailed || this.status.suspended)
             return this;
         this.input.value = executor(String(this.input?.value), ...args);
+        if (!!this.input.label && !!this.status.results) {
+            console.log(`sanitizer ${executor?.name} updating: ${this.input.label}`);
+            this.status.results[this.input.label].value = this.input.value;
+        }
+        return this;
+    }
+    default(value) {
+        this.input.value = value === null ? null : String(value);
+        this.status.results[this.input.label].value = value;
         return this;
     }
     optional() {
@@ -118,17 +148,18 @@ class ValidatorJSChain {
         this.status.suspended = false;
         return this;
     }
-    withMessage(generator) {
-        if (!!this.status?.lastValidator &&
-            !this.status.bailed &&
+    withMessage(message) {
+        if (!this.status.bailed &&
             !this.status.suspended &&
-            this.status.results[this.input?.label][this.status?.lastValidator].error)
-            this.status.results[this.input?.label][this.status?.lastValidator].message =
-                generator?.constructor?.name === 'String'
-                    ?
-                        generator
-                    :
-                        generator(this.input?.value);
+            !!this.status.lastValidator &&
+            !!this.input.label &&
+            !!this.status.results) {
+            const label = this.input.label;
+            const results = this.status.results;
+            const lastResult = results[label][this.status.lastValidator];
+            if (lastResult.error)
+                lastResult.message = message;
+        }
         return this;
     }
     custom(validator, ...args) {
@@ -385,49 +416,46 @@ class ValidatorJSChain {
         return this.validatorMethod(validator_1.default.matches, pattern, modifiers);
     }
     blacklist(chars) {
-        return this.validatorMethod(validator_1.default.blacklist, chars);
-    }
-    default() {
-        return this.validatorMethod(validator_1.default.default);
+        return this.sanitizerMethod(validator_1.default.blacklist, chars);
     }
     escape() {
-        return this.validatorMethod(validator_1.default.escape);
+        return this.sanitizerMethod(validator_1.default.escape);
     }
     ltrim(chars) {
-        return this.validatorMethod(validator_1.default.ltrim, chars);
+        return this.sanitizerMethod(validator_1.default.ltrim, chars);
     }
     normalizeEmail(options) {
-        return this.validatorMethod(validator_1.default.normalizeEmail, options);
+        return this.sanitizerMethod(validator_1.default.normalizeEmail, options);
     }
     rtrim(chars) {
-        return this.validatorMethod(validator_1.default.rtrim, chars);
+        return this.sanitizerMethod(validator_1.default.rtrim, chars);
     }
     stripLow(keep_new_lines) {
-        return this.validatorMethod(validator_1.default.stripLow, keep_new_lines);
+        return this.sanitizerMethod(validator_1.default.stripLow, keep_new_lines);
     }
     toBoolean(strict = true) {
-        return this.validatorMethod(validator_1.default.toBoolean, strict);
+        return this.sanitizerMethod(validator_1.default.toBoolean, strict);
     }
     toDate() {
-        return this.validatorMethod(validator_1.default.toDate);
+        return this.sanitizerMethod(validator_1.default.toDate);
     }
     toFloat() {
-        return this.validatorMethod(validator_1.default.toFloat);
+        return this.sanitizerMethod(validator_1.default.toFloat);
     }
     toInt(radix) {
-        return this.validatorMethod(validator_1.default.toInt, radix);
+        return this.sanitizerMethod(validator_1.default.toInt, radix);
     }
     toString() {
-        return this.validatorMethod(validator_1.default.toString);
+        return this.sanitizerMethod(validator_1.default.toString);
     }
     trim(chars) {
-        return this.validatorMethod(validator_1.default.trim, chars);
+        return this.sanitizerMethod(validator_1.default.trim, chars);
     }
     unescape() {
-        return this.validatorMethod(validator_1.default.unescape);
+        return this.sanitizerMethod(validator_1.default.unescape);
     }
     whitelist(chars) {
-        return this.validatorMethod(validator_1.default.whitelist, chars);
+        return this.sanitizerMethod(validator_1.default.whitelist, chars);
     }
 }
 exports.default = ValidatorJSChain;

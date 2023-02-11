@@ -38,14 +38,13 @@ import {
     VATCountryCode,
     ValidatorJSChainStatus,
     ValidatorJSChainInput,
+    ValidatorJSChainElementStatus,
 } from './types';
 
 const defaultValidatorStatus: ValidatorJSChainStatus = {
     bailed: false,
     suspended: false,
     invertNext: false,
-    lastValidator: undefined,
-    results: {},
 };
 
 export default class ValidatorJSChain {
@@ -53,7 +52,7 @@ export default class ValidatorJSChain {
 
     //  Stores the currently validated value
     private input: ValidatorJSChainInput = {
-        label: '',
+        label: null,
         value: undefined,
     };
 
@@ -62,14 +61,29 @@ export default class ValidatorJSChain {
 
     //  Utilities ---------------------------------------------
 
+    //  Gets the current number of validaton errors
     public get errorCount(): number {
         let errors = 0;
-        Object.keys(this.status.results).forEach(label => {
-            Object.keys(this.status.results[label]).forEach(validator => {
-                if (this.status.results[label][validator].error) errors++;
-            });
+        if (!this.status.results) return errors;
+        const results: Record<string, any> = this.status.results;
+        Object.keys(results).forEach(label => {
+            Object.keys(results[label])
+                .filter(x => x !== 'value')
+                .forEach(validator => {
+                    if (results[label][validator].error) errors++;
+                });
         });
         return errors;
+    }
+
+    //  Gets a key-value pair list of all current values (after sanitizers)
+    public get values(): Record<string, any> | undefined {
+        if (!this.status.results) return;
+        const retval = {};
+        Object.keys(this.status.results).forEach(
+            key => (retval[key] = (this.status.results as Record<string, any>)[key].value),
+        );
+        return retval;
     }
 
     //  Returns the current results
@@ -95,37 +109,49 @@ export default class ValidatorJSChain {
 
     //  Sets the currently validated value
     public setValue(label: string, value: any, unbail = false) {
+        if (unbail) this.status.bailed = false;
         if (this.status.bailed || this.status.suspended) return this;
 
-        if (!label || Object.keys(this.status.results).includes(label))
+        //  If this label already exists in the chain, throw an error
+        if (!label || (!!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${label}"`;
 
         if (value !== null && value !== undefined && value.constructor.name !== 'string') value = String(value);
 
-        if (unbail) this.status.bailed = false;
         this.status.suspended = false;
         this.status.lastValidator = <string>(<unknown>null);
         this.status.invertNext = false;
         this.input = { label, value };
+        if (!this.status.results) this.status.results = {};
+
+        this.status.results[label] = {
+            value,
+        };
+
         return this;
     }
 
     //  Generic wrapper for all validators
     private validatorMethod(executor: (...passedArgs) => boolean, ...args) {
+        if (!this.input.label) return this;
+        if (!this.status.results) this.status.results = {};
+
         //  prettier-ignore
-        if (!this.status.results[this.input?.label])
-            this.status.results[this.input?.label] = {};
+        if (!this.status.results[this.input.label])
+            this.status.results[this.input.label] = {
+                value: this.input.value
+            };
 
         if (this.status.bailed || this.status.suspended) return this;
 
         //  If there is already a validator with the same name,
         //  then add a number suffix to this one
         let executorName = executor.name || 'custom';
-        const results = this.status.results[this.input?.label];
+        const results = <ValidatorJSChainElementStatus>this.status.results[this.input.label];
         const regExp = new RegExp('^(' + executorName + ')(_d+)?', 'g');
 
         //  prettier-ignore
-        const previousValidators = Object.keys(results)
+        const previousValidators: string[] = Object.keys(results)
             .filter(key => !!key.match(regExp));
 
         if (previousValidators.length) {
@@ -153,6 +179,17 @@ export default class ValidatorJSChain {
     private sanitizerMethod(executor: (...passedArgs) => string, ...args) {
         if (this.status.bailed || this.status.suspended) return this;
         this.input.value = executor(String(this.input?.value), ...args);
+        if (!!this.input.label && !!this.status.results) {
+            console.log(`sanitizer ${executor?.name} updating: ${this.input.label}`);
+            (this.status.results as Record<string, any>)[this.input.label].value = this.input.value;
+        }
+        return this;
+    }
+
+    //  Sets value
+    public default(value: any) {
+        this.input.value = value === null ? null : String(value);
+        (this.status.results as Record<string, any>)[this.input.label as string].value = value;
         return this;
     }
 
@@ -200,21 +237,20 @@ export default class ValidatorJSChain {
     }
 
     //  Replaces the last error message in the errors array with the output of a custom function
-    public withMessage(generator: (value?: any) => string | object) {
+    public withMessage(message: string | Record<string, string>) {
+        //  prettier-ignore
         if (
-            !!this.status?.lastValidator &&
             !this.status.bailed &&
             !this.status.suspended &&
-            this.status.results[this.input?.label][this.status?.lastValidator].error
-        )
-            //  prettier-ignore
-            this.status.results[this.input?.label][this.status?.lastValidator].message = 
-                generator?.constructor?.name === 'String' 
-                ? 
-                generator 
-                : 
-                generator(this.input?.value);
-
+            !!this.status.lastValidator &&
+            !!this.input.label &&
+            !!this.status.results
+        ) {
+            const label: string = this.input.label;
+            const results: Record<string, any> = this.status.results;
+            const lastResult = results[label][this.status.lastValidator];
+            if (lastResult.error) lastResult.message = message;
+        }
         return this;
     }
 
@@ -483,48 +519,45 @@ export default class ValidatorJSChain {
     //  ----- Sanitizer methods -------------------------------------------------------------------------
 
     blacklist(chars: string) {
-        return this.validatorMethod(validator.blacklist, chars);
-    }
-    default() {
-        return this.validatorMethod(validator.default);
+        return this.sanitizerMethod(validator.blacklist, chars);
     }
     escape() {
-        return this.validatorMethod(validator.escape);
+        return this.sanitizerMethod(validator.escape);
     }
     ltrim(chars?: string[]) {
-        return this.validatorMethod(validator.ltrim, chars);
+        return this.sanitizerMethod(validator.ltrim, chars);
     }
     normalizeEmail(options?: NormalizeEmailOptions) {
-        return this.validatorMethod(validator.normalizeEmail, options);
+        return this.sanitizerMethod(validator.normalizeEmail, options);
     }
     rtrim(chars?: string[]) {
-        return this.validatorMethod(validator.rtrim, chars);
+        return this.sanitizerMethod(validator.rtrim, chars);
     }
     stripLow(keep_new_lines?: boolean) {
-        return this.validatorMethod(validator.stripLow, keep_new_lines);
+        return this.sanitizerMethod(validator.stripLow, keep_new_lines);
     }
     toBoolean(strict = true) {
-        return this.validatorMethod(validator.toBoolean, strict);
+        return this.sanitizerMethod(validator.toBoolean, strict);
     }
     toDate() {
-        return this.validatorMethod(validator.toDate);
+        return this.sanitizerMethod(validator.toDate);
     }
     toFloat() {
-        return this.validatorMethod(validator.toFloat);
+        return this.sanitizerMethod(validator.toFloat);
     }
     toInt(radix?: number) {
-        return this.validatorMethod(validator.toInt, radix);
+        return this.sanitizerMethod(validator.toInt, radix);
     }
     toString() {
-        return this.validatorMethod(validator.toString);
+        return this.sanitizerMethod(validator.toString);
     }
     trim(chars?: string[]) {
-        return this.validatorMethod(validator.trim, chars);
+        return this.sanitizerMethod(validator.trim, chars);
     }
     unescape() {
-        return this.validatorMethod(validator.unescape);
+        return this.sanitizerMethod(validator.unescape);
     }
     whitelist(chars: string) {
-        return this.validatorMethod(validator.whitelist, chars);
+        return this.sanitizerMethod(validator.whitelist, chars);
     }
 }
