@@ -15,7 +15,7 @@ class ValidatorJSChain {
         label: null,
         value: undefined,
     };
-    status = defaultValidatorStatus;
+    status = { ...defaultValidatorStatus };
     get errorCount() {
         let errors = 0;
         if (!this.status.results)
@@ -30,6 +30,24 @@ class ValidatorJSChain {
             });
         });
         return errors;
+    }
+    get errors() {
+        if (!this.status.results)
+            return {};
+        const retval = {};
+        const results = this.status.results;
+        Object.keys(results).forEach(label => {
+            Object.keys(results[label])
+                .filter(x => x !== 'value')
+                .forEach(validator => {
+                if (results[label][validator].error) {
+                    if (!retval[label])
+                        retval[label] = { value: results[label].value };
+                    retval[label][validator] = results[label][validator];
+                }
+            });
+        });
+        return retval;
     }
     get values() {
         if (!this.status.results)
@@ -48,7 +66,7 @@ class ValidatorJSChain {
         return this.status.lastValidator;
     }
     clearResults() {
-        this.status = defaultValidatorStatus;
+        this.status = { ...defaultValidatorStatus };
         return this;
     }
     setValue(label, value, unbail = false) {
@@ -56,7 +74,7 @@ class ValidatorJSChain {
             this.status.bailed = false;
         if (this.status.bailed || this.status.suspended)
             return this;
-        if (!label || (!!this.status.results && Object.keys(this.status.results).includes(label)))
+        if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${label}"`;
         if (value !== null && value !== undefined && value.constructor.name !== 'string')
             value = String(value);
@@ -106,10 +124,8 @@ class ValidatorJSChain {
         if (this.status.bailed || this.status.suspended)
             return this;
         this.input.value = executor(String(this.input?.value), ...args);
-        if (!!this.input.label && !!this.status.results) {
-            console.log(`sanitizer ${executor?.name} updating: ${this.input.label}`);
+        if (!!this.input.label && !!this.status.results)
             this.status.results[this.input.label].value = this.input.value;
-        }
         return this;
     }
     default(value) {

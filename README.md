@@ -1,6 +1,6 @@
 # ValidatorJSChain
 
-### Version 1.05
+### Version 1.06
 
 A framework-agnostic validator and sanitizer chain inspired by `express-validator`. Very useful for GraphQL resolvers!
 Experimental, still under development. Please report bugs so I can ignore them.
@@ -337,6 +337,7 @@ validatorJSChain()
 | Property                       | Explanation                                                    |
 | ------------------------------ | -------------------------------------------------------------- |
 | `errorCount: number`           | The number of errors found during the entire validation chain. |
+| `errors: Record<string, any>`  | Same as `results` but contains only errors                     |
 | `lastValidator: string`        | Name of the last validator executed                            |
 | `results: Record<string, any>` | List of results                                                |
 | `value: string`                | The currently verified value (without label)                   |

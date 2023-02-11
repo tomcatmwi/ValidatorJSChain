@@ -57,7 +57,7 @@ export default class ValidatorJSChain {
     };
 
     //  Stores the current state of the validation chain
-    private status: ValidatorJSChainStatus = defaultValidatorStatus;
+    private status: ValidatorJSChainStatus = { ...defaultValidatorStatus };
 
     //  Utilities ---------------------------------------------
 
@@ -74,6 +74,26 @@ export default class ValidatorJSChain {
                 });
         });
         return errors;
+    }
+
+    //  Returns only the errors
+    public get errors(): Record<string, any> {
+        if (!this.status.results) return {};
+        const retval = {};
+        const results: Record<string, any> = this.status.results;
+
+        Object.keys(results).forEach(label => {
+            Object.keys(results[label])
+                .filter(x => x !== 'value')
+                .forEach(validator => {
+                    if (results[label][validator].error) {
+                        if (!retval[label]) retval[label] = { value: results[label].value };
+                        retval[label][validator] = results[label][validator];
+                    }
+                });
+        });
+
+        return retval;
     }
 
     //  Gets a key-value pair list of all current values (after sanitizers)
@@ -103,7 +123,7 @@ export default class ValidatorJSChain {
 
     //  Clears all errors, chainable
     public clearResults() {
-        this.status = defaultValidatorStatus;
+        this.status = { ...defaultValidatorStatus };
         return this;
     }
 
@@ -113,7 +133,7 @@ export default class ValidatorJSChain {
         if (this.status.bailed || this.status.suspended) return this;
 
         //  If this label already exists in the chain, throw an error
-        if (!label || (!!this.status.results && Object.keys(this.status.results).includes(label)))
+        if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${label}"`;
 
         if (value !== null && value !== undefined && value.constructor.name !== 'string') value = String(value);
@@ -179,10 +199,8 @@ export default class ValidatorJSChain {
     private sanitizerMethod(executor: (...passedArgs) => string, ...args) {
         if (this.status.bailed || this.status.suspended) return this;
         this.input.value = executor(String(this.input?.value), ...args);
-        if (!!this.input.label && !!this.status.results) {
-            console.log(`sanitizer ${executor?.name} updating: ${this.input.label}`);
+        if (!!this.input.label && !!this.status.results)
             (this.status.results as Record<string, any>)[this.input.label].value = this.input.value;
-        }
         return this;
     }
 
