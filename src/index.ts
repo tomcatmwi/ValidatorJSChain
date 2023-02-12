@@ -206,8 +206,10 @@ export default class ValidatorJSChain {
 
     //  Sets value
     public default(value: any) {
-        this.input.value = value === null ? null : String(value);
-        (this.status.results as Record<string, any>)[this.input.label as string].value = value;
+        if (!this.input.value) {
+            this.input.value = value === null ? null : String(value);
+            (this.status.results as Record<string, any>)[this.input.label as string].value = value;
+        }
         return this;
     }
 

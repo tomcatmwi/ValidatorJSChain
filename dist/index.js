@@ -129,8 +129,10 @@ class ValidatorJSChain {
         return this;
     }
     default(value) {
-        this.input.value = value === null ? null : String(value);
-        this.status.results[this.input.label].value = value;
+        if (!this.input.value) {
+            this.input.value = value === null ? null : String(value);
+            this.status.results[this.input.label].value = value;
+        }
         return this;
     }
     optional() {
