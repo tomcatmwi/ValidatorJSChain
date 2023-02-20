@@ -98,11 +98,11 @@ export default class ValidatorJSChain {
 
     //  Gets a key-value pair list of all current values (after sanitizers)
     public get values(): Record<string, any> | undefined {
-        if (!this.status.results) return;
+        if (!this.status.results) return {};
         const retval = {};
-        Object.keys(this.status.results).forEach(
-            key => (retval[key] = (this.status.results as Record<string, any>)[key].value),
-        );
+        Object.keys(this.status.results).forEach(key => {
+            retval[key] = (this.status.results as Record<string, any>)[key].value;
+        });
         return retval;
     }
 
@@ -127,6 +127,21 @@ export default class ValidatorJSChain {
         return this;
     }
 
+    //  Adds unsanitized values to the result
+    //  Useful if you have an object you don't want to sanitize entirely
+    public addResultValues(values: Record<string, any>, overwrite = false) {
+        if (!this.status.results) this.status.results = {};
+
+        Object.keys(values).forEach(key => {
+            if (overwrite || !(<Record<string, any>>this.values)[key]) {
+                (<Record<string, any>>this.status.results)[key] = {
+                    value: values[key],
+                };
+            }
+        });
+        return this;
+    }
+
     //  Sets the currently validated value
     public setValue(label: string, value: any, unbail = false) {
         if (unbail) this.status.bailed = false;
@@ -134,9 +149,10 @@ export default class ValidatorJSChain {
 
         //  If this label already exists in the chain, throw an error
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
-            throw `Invalid validation chain label: "${label}"`;
+            throw `Invalid validation chain label: "${String(label)}"`;
 
-        if (value !== null && value !== undefined && value.constructor.name !== 'string') value = String(value);
+        if (typeof value === 'object') value = JSON.stringify(value);
+        if (value !== null && value !== undefined && typeof value !== 'string') value = String(value);
 
         this.status.suspended = false;
         this.status.lastValidator = <string>(<unknown>null);
@@ -196,11 +212,18 @@ export default class ValidatorJSChain {
     }
 
     //  Generic wrapper for all sanitizers
-    private sanitizerMethod(executor: (...passedArgs) => string, ...args) {
+    private sanitizerMethod(executor: (...passedArgs) => any, ...args) {
         if (this.status.bailed || this.status.suspended) return this;
-        this.input.value = executor(String(this.input?.value), ...args);
-        if (!!this.input.label && !!this.status.results)
-            (this.status.results as Record<string, any>)[this.input.label].value = this.input.value;
+        const sanitizedValue = executor(String(this.input?.value), ...args);
+        this.input.value = sanitizedValue;
+
+        if (!this.status.results) this.status.results = {};
+
+        this.status.results[this.input.label as string] = {
+            ...(<Record<string, any>>this.status.results[this.input.label as string]),
+            value: sanitizedValue,
+        };
+
         return this;
     }
 
@@ -567,6 +590,15 @@ export default class ValidatorJSChain {
     }
     toInt(radix?: number) {
         return this.sanitizerMethod(validator.toInt, radix);
+    }
+    toJSON() {
+        return this.sanitizerMethod((str: string) => {
+            try {
+                return JSON.parse(str);
+            } catch (err) {
+                return err.message;
+            }
+        });
     }
     toString() {
         return this.sanitizerMethod(validator.toString);

@@ -51,9 +51,11 @@ class ValidatorJSChain {
     }
     get values() {
         if (!this.status.results)
-            return;
+            return {};
         const retval = {};
-        Object.keys(this.status.results).forEach(key => (retval[key] = this.status.results[key].value));
+        Object.keys(this.status.results).forEach(key => {
+            retval[key] = this.status.results[key].value;
+        });
         return retval;
     }
     get results() {
@@ -69,14 +71,28 @@ class ValidatorJSChain {
         this.status = { ...defaultValidatorStatus };
         return this;
     }
+    addResultValues(values, overwrite = false) {
+        if (!this.status.results)
+            this.status.results = {};
+        Object.keys(values).forEach(key => {
+            if (overwrite || !this.values[key]) {
+                this.status.results[key] = {
+                    value: values[key],
+                };
+            }
+        });
+        return this;
+    }
     setValue(label, value, unbail = false) {
         if (unbail)
             this.status.bailed = false;
         if (this.status.bailed || this.status.suspended)
             return this;
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
-            throw `Invalid validation chain label: "${label}"`;
-        if (value !== null && value !== undefined && value.constructor.name !== 'string')
+            throw `Invalid validation chain label: "${String(label)}"`;
+        if (typeof value === 'object')
+            value = JSON.stringify(value);
+        if (value !== null && value !== undefined && typeof value !== 'string')
             value = String(value);
         this.status.suspended = false;
         this.status.lastValidator = null;
@@ -123,9 +139,14 @@ class ValidatorJSChain {
     sanitizerMethod(executor, ...args) {
         if (this.status.bailed || this.status.suspended)
             return this;
-        this.input.value = executor(String(this.input?.value), ...args);
-        if (!!this.input.label && !!this.status.results)
-            this.status.results[this.input.label].value = this.input.value;
+        const sanitizedValue = executor(String(this.input?.value), ...args);
+        this.input.value = sanitizedValue;
+        if (!this.status.results)
+            this.status.results = {};
+        this.status.results[this.input.label] = {
+            ...this.status.results[this.input.label],
+            value: sanitizedValue,
+        };
         return this;
     }
     default(value) {
@@ -462,6 +483,16 @@ class ValidatorJSChain {
     }
     toInt(radix) {
         return this.sanitizerMethod(validator_1.default.toInt, radix);
+    }
+    toJSON() {
+        return this.sanitizerMethod((str) => {
+            try {
+                return JSON.parse(str);
+            }
+            catch (err) {
+                return err.message;
+            }
+        });
     }
     toString() {
         return this.sanitizerMethod(validator_1.default.toString);
