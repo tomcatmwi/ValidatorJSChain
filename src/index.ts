@@ -240,7 +240,6 @@ export default class ValidatorJSChain {
 
     //  Skips further validation until the next setValue() if the value is falsy
     public optional() {
-        console.log('optional', this.input?.value);
         if (this.input?.value === undefined || this.input?.value === null || this.input?.value === '')
             this.status.skipped = true;
         return this;
