@@ -44,6 +44,7 @@ import {
 const defaultValidatorStatus: ValidatorJSChainStatus = {
     bailed: false,
     suspended: false,
+    skipped: false,
     invertNext: false,
 };
 
@@ -146,13 +147,14 @@ export default class ValidatorJSChain {
     public setValue(label: string, value: any, unbail = false) {
         if (unbail) this.status.bailed = false;
         if (this.status.bailed || this.status.suspended) return this;
+        this.status.skipped = false;
 
         //  If this label already exists in the chain, throw an error
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${String(label)}"`;
 
-        if (typeof value === 'object') value = JSON.stringify(value);
         if (value !== null && value !== undefined && typeof value !== 'string') value = String(value);
+        if (!!value && typeof value === 'object') value = JSON.stringify(value);
 
         this.status.suspended = false;
         this.status.lastValidator = <string>(<unknown>null);
@@ -178,7 +180,7 @@ export default class ValidatorJSChain {
                 value: this.input.value
             };
 
-        if (this.status.bailed || this.status.suspended) return this;
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
 
         //  If there is already a validator with the same name,
         //  then add a number suffix to this one
@@ -213,7 +215,7 @@ export default class ValidatorJSChain {
 
     //  Generic wrapper for all sanitizers
     private sanitizerMethod(executor: (...passedArgs) => any, ...args) {
-        if (this.status.bailed || this.status.suspended) return this;
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
         const sanitizedValue = executor(String(this.input?.value), ...args);
         this.input.value = sanitizedValue;
 
@@ -236,10 +238,11 @@ export default class ValidatorJSChain {
         return this;
     }
 
-    //  Skips further validation if the value is falsy
+    //  Skips further validation until the next setValue() if the value is falsy
     public optional() {
+        console.log('optional', this.input?.value);
         if (this.input?.value === undefined || this.input?.value === null || this.input?.value === '')
-            this.status.bailed = true;
+            this.status.skipped = true;
         return this;
     }
 

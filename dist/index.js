@@ -7,6 +7,7 @@ const validator_1 = __importDefault(require("validator"));
 const defaultValidatorStatus = {
     bailed: false,
     suspended: false,
+    skipped: false,
     invertNext: false,
 };
 class ValidatorJSChain {
@@ -88,12 +89,13 @@ class ValidatorJSChain {
             this.status.bailed = false;
         if (this.status.bailed || this.status.suspended)
             return this;
+        this.status.skipped = false;
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${String(label)}"`;
-        if (typeof value === 'object')
-            value = JSON.stringify(value);
         if (value !== null && value !== undefined && typeof value !== 'string')
             value = String(value);
+        if (!!value && typeof value === 'object')
+            value = JSON.stringify(value);
         this.status.suspended = false;
         this.status.lastValidator = null;
         this.status.invertNext = false;
@@ -114,7 +116,7 @@ class ValidatorJSChain {
             this.status.results[this.input.label] = {
                 value: this.input.value
             };
-        if (this.status.bailed || this.status.suspended)
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
             return this;
         let executorName = executor.name || 'custom';
         const results = this.status.results[this.input.label];
@@ -137,7 +139,7 @@ class ValidatorJSChain {
         return this;
     }
     sanitizerMethod(executor, ...args) {
-        if (this.status.bailed || this.status.suspended)
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
             return this;
         const sanitizedValue = executor(String(this.input?.value), ...args);
         this.input.value = sanitizedValue;
@@ -157,8 +159,9 @@ class ValidatorJSChain {
         return this;
     }
     optional() {
+        console.log('optional', this.input?.value);
         if (this.input?.value === undefined || this.input?.value === null || this.input?.value === '')
-            this.status.bailed = true;
+            this.status.skipped = true;
         return this;
     }
     not() {

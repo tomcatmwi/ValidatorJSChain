@@ -754,6 +754,8 @@ export interface ValidatorJSChainStatus {
     suspended: boolean;
     //  Flag for not()
     invertNext: boolean;
+    //  Flag for optional()
+    skipped: boolean;
     //  Name of the last validator, for error tracking purposes
     lastValidator?: string | undefined;
     //  The result object returned by .result()
