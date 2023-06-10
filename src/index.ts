@@ -144,8 +144,10 @@ export default class ValidatorJSChain {
     }
 
     //  Sets the currently validated value
-    public setValue(label: string, value: any, unbail = false) {
-        if (unbail) this.status.bailed = false;
+    public setValue(label: string, value: any, unbail = false, convertToString = true) {
+
+        if (unbail) 
+            this.status.bailed = false;
         if (this.status.bailed || this.status.suspended) return this;
         this.status.skipped = false;
 
@@ -153,8 +155,11 @@ export default class ValidatorJSChain {
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
             throw `Invalid validation chain label: "${String(label)}"`;
 
-        if (value !== null && value !== undefined && typeof value !== 'string') value = String(value);
-        if (!!value && typeof value === 'object') value = JSON.stringify(value);
+        //  Convert value to string, unless explicitly requested not to
+        if (convertToString) {
+            if (!!value && typeof value === 'object') value = JSON.stringify(value)
+            if (value !== null && value !== undefined && typeof value !== 'string') value = String(value);
+        }
 
         this.status.suspended = false;
         this.status.lastValidator = <string>(<unknown>null);
@@ -171,6 +176,7 @@ export default class ValidatorJSChain {
 
     //  Generic wrapper for all validators
     private validatorMethod(executor: (...passedArgs) => boolean, ...args) {
+
         if (!this.input.label) return this;
         if (!this.status.results) this.status.results = {};
 
@@ -202,7 +208,8 @@ export default class ValidatorJSChain {
         }
 
         this.status.lastValidator = executorName;
-        const validationResult = executor(String(this.input?.value), ...args);
+
+        const validationResult = executor(this.input?.value, ...args);
 
         //  Save validator result into results
         results[executorName] = {
