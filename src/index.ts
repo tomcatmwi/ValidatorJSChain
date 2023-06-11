@@ -144,7 +144,7 @@ export default class ValidatorJSChain {
     }
 
     //  Sets the currently validated value
-    public setValue(label: string, value: any, unbail = false, convertToString = true) {
+    public setValue(label: string, value: any = '', unbail = false, convertToString = true) {
 
         if (unbail) 
             this.status.bailed = false;
@@ -159,6 +159,7 @@ export default class ValidatorJSChain {
         if (convertToString) {
             if (!!value && typeof value === 'object') value = JSON.stringify(value)
             if (value !== null && value !== undefined && typeof value !== 'string') value = String(value);
+            if (value === null || value === undefined) value = '';
         }
 
         this.status.suspended = false;

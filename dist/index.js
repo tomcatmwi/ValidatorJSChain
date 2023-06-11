@@ -79,7 +79,7 @@ export default class ValidatorJSChain {
         });
         return this;
     }
-    setValue(label, value, unbail = false, convertToString = true) {
+    setValue(label, value = '', unbail = false, convertToString = true) {
         if (unbail)
             this.status.bailed = false;
         if (this.status.bailed || this.status.suspended)
@@ -92,6 +92,8 @@ export default class ValidatorJSChain {
                 value = JSON.stringify(value);
             if (value !== null && value !== undefined && typeof value !== 'string')
                 value = String(value);
+            if (value === null || value === undefined)
+                value = '';
         }
         this.status.suspended = false;
         this.status.lastValidator = null;
