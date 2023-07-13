@@ -1,11 +1,16 @@
-import validator from 'validator';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const validator_1 = __importDefault(require("validator"));
 const defaultValidatorStatus = {
     bailed: false,
     suspended: false,
     skipped: false,
     invertNext: false,
 };
-export default class ValidatorJSChain {
+class ValidatorJSChain {
     constructor() { }
     input = {
         label: null,
@@ -213,277 +218,277 @@ export default class ValidatorJSChain {
         return this;
     }
     contains(seed, options) {
-        return this.validatorMethod(validator.contains, seed, options);
+        return this.validatorMethod(validator_1.default.contains, seed, options);
     }
     equals(comparison) {
-        return this.validatorMethod(validator.equals, comparison);
+        return this.validatorMethod(validator_1.default.equals, comparison);
     }
     ibanLocales() {
-        return this.validatorMethod(validator.ibanLocales);
+        return this.validatorMethod(validator_1.default.ibanLocales);
     }
     isAfter(options) {
-        return this.validatorMethod(validator.isAfter, options);
+        return this.validatorMethod(validator_1.default.isAfter, options);
     }
     isAlpha(locale, options) {
-        return this.validatorMethod(validator.isAlpha, locale, options);
+        return this.validatorMethod(validator_1.default.isAlpha, locale, options);
     }
     isAlphanumeric(locale, options) {
-        return this.validatorMethod(validator.isAlphanumeric, locale, options);
+        return this.validatorMethod(validator_1.default.isAlphanumeric, locale, options);
     }
     isAscii() {
-        return this.validatorMethod(validator.isAscii);
+        return this.validatorMethod(validator_1.default.isAscii);
     }
     isBase32(options) {
-        return this.validatorMethod(validator.isBase32, options);
+        return this.validatorMethod(validator_1.default.isBase32, options);
     }
     isBase58() {
-        return this.validatorMethod(validator.isBase58);
+        return this.validatorMethod(validator_1.default.isBase58);
     }
     isBase64(options) {
-        return this.validatorMethod(validator.isBase64, options);
+        return this.validatorMethod(validator_1.default.isBase64, options);
     }
     isBefore(date) {
-        return this.validatorMethod(validator.isBefore, date);
+        return this.validatorMethod(validator_1.default.isBefore, date);
     }
     isBIC() {
-        return this.validatorMethod(validator.isBIC);
+        return this.validatorMethod(validator_1.default.isBIC);
     }
     isBoolean(options) {
-        return this.validatorMethod(validator.isBoolean, options);
+        return this.validatorMethod(validator_1.default.isBoolean, options);
     }
     isBtcAddress() {
-        return this.validatorMethod(validator.isBtcAddress);
+        return this.validatorMethod(validator_1.default.isBtcAddress);
     }
     isByteLength(options) {
-        return this.validatorMethod(validator.isByteLength, options);
+        return this.validatorMethod(validator_1.default.isByteLength, options);
     }
     isCreditCard(options) {
-        return this.validatorMethod(validator.isCreditCard, options);
+        return this.validatorMethod(validator_1.default.isCreditCard, options);
     }
     isCurrency(options) {
-        return this.validatorMethod(validator.isCurrency, options);
+        return this.validatorMethod(validator_1.default.isCurrency, options);
     }
     isDataURI() {
-        return this.validatorMethod(validator.isDataURI);
+        return this.validatorMethod(validator_1.default.isDataURI);
     }
     isDate(options) {
-        return this.validatorMethod(validator.isDate, options);
+        return this.validatorMethod(validator_1.default.isDate, options);
     }
     isDecimal(options) {
-        return this.validatorMethod(validator.isDecimal, options);
+        return this.validatorMethod(validator_1.default.isDecimal, options);
     }
     isDivisibleBy(number) {
-        return this.validatorMethod(validator.isDivisibleBy, number);
+        return this.validatorMethod(validator_1.default.isDivisibleBy, number);
     }
     isEAN() {
-        return this.validatorMethod(validator.isEAN);
+        return this.validatorMethod(validator_1.default.isEAN);
     }
     isEmail(options) {
-        return this.validatorMethod(validator.isEmail, options);
+        return this.validatorMethod(validator_1.default.isEmail, options);
     }
     isEmpty(options) {
-        return this.validatorMethod(validator.isEmpty, options);
+        return this.validatorMethod(validator_1.default.isEmpty, options);
     }
     isEthereumAddress() {
-        return this.validatorMethod(validator.isEthereumAddress);
+        return this.validatorMethod(validator_1.default.isEthereumAddress);
     }
     isFloat(options) {
-        return this.validatorMethod(validator.isFloat, options);
+        return this.validatorMethod(validator_1.default.isFloat, options);
     }
     isFQDN(options) {
-        return this.validatorMethod(validator.isFQDN, options);
+        return this.validatorMethod(validator_1.default.isFQDN, options);
     }
     isFullWidth() {
-        return this.validatorMethod(validator.isFullWidth);
+        return this.validatorMethod(validator_1.default.isFullWidth);
     }
     isHalfWidth() {
-        return this.validatorMethod(validator.isHalfWidth);
+        return this.validatorMethod(validator_1.default.isHalfWidth);
     }
     isHash(algorithm) {
-        return this.validatorMethod(validator.isHash, algorithm);
+        return this.validatorMethod(validator_1.default.isHash, algorithm);
     }
     isHexadecimal() {
-        return this.validatorMethod(validator.isHexadecimal);
+        return this.validatorMethod(validator_1.default.isHexadecimal);
     }
     isHexColor() {
-        return this.validatorMethod(validator.isHexColor);
+        return this.validatorMethod(validator_1.default.isHexColor);
     }
     isHSL() {
-        return this.validatorMethod(validator.isHSL);
+        return this.validatorMethod(validator_1.default.isHSL);
     }
     isIBAN() {
-        return this.validatorMethod(validator.isIBAN);
+        return this.validatorMethod(validator_1.default.isIBAN);
     }
     isIdentityCard(locale) {
-        return this.validatorMethod(validator.isIdentityCard, locale);
+        return this.validatorMethod(validator_1.default.isIdentityCard, locale);
     }
     isIMEI(options) {
-        return this.validatorMethod(validator.isIMEI, options);
+        return this.validatorMethod(validator_1.default.isIMEI, options);
     }
     isIP(version = 4) {
-        return this.validatorMethod(validator.isIP, version);
+        return this.validatorMethod(validator_1.default.isIP, version);
     }
     isIPRange(version = 4) {
-        return this.validatorMethod(validator.isIPRange, version);
+        return this.validatorMethod(validator_1.default.isIPRange, version);
     }
     isISBN(options) {
-        return this.validatorMethod(validator.isISBN, options);
+        return this.validatorMethod(validator_1.default.isISBN, options);
     }
     isIn(values) {
-        return this.validatorMethod(validator.isIn, values);
+        return this.validatorMethod(validator_1.default.isIn, values);
     }
     isISIN() {
-        return this.validatorMethod(validator.isISIN);
+        return this.validatorMethod(validator_1.default.isISIN);
     }
     isInt(options) {
-        return this.validatorMethod(validator.isInt, options);
+        return this.validatorMethod(validator_1.default.isInt, options);
     }
     isISO4217() {
-        return this.validatorMethod(validator.isISO4217);
+        return this.validatorMethod(validator_1.default.isISO4217);
     }
     isISO8601(options) {
-        return this.validatorMethod(validator.isISO8601, options);
+        return this.validatorMethod(validator_1.default.isISO8601, options);
     }
     isISO31661Alpha2() {
-        return this.validatorMethod(validator.isISO31661Alpha2);
+        return this.validatorMethod(validator_1.default.isISO31661Alpha2);
     }
     isISO31661Alpha3() {
-        return this.validatorMethod(validator.isISO31661Alpha3);
+        return this.validatorMethod(validator_1.default.isISO31661Alpha3);
     }
     isISRC() {
-        return this.validatorMethod(validator.isISRC);
+        return this.validatorMethod(validator_1.default.isISRC);
     }
     isISSN(options) {
-        return this.validatorMethod(validator.isISSN, options);
+        return this.validatorMethod(validator_1.default.isISSN, options);
     }
     isJSON(options) {
-        return this.validatorMethod(validator.isJSON, options);
+        return this.validatorMethod(validator_1.default.isJSON, options);
     }
     isJWT() {
-        return this.validatorMethod(validator.isJWT);
+        return this.validatorMethod(validator_1.default.isJWT);
     }
     isLength(options) {
-        return this.validatorMethod(validator.isLength, options);
+        return this.validatorMethod(validator_1.default.isLength, options);
     }
     isLatLong(options) {
-        return this.validatorMethod(validator.isLatLong, options);
+        return this.validatorMethod(validator_1.default.isLatLong, options);
     }
     isLicensePlate(locale) {
-        return this.validatorMethod(validator.isLicensePlate, locale);
+        return this.validatorMethod(validator_1.default.isLicensePlate, locale);
     }
     isLocale() {
-        return this.validatorMethod(validator.isLocale);
+        return this.validatorMethod(validator_1.default.isLocale);
     }
     isLowercase() {
-        return this.validatorMethod(validator.isLowercase);
+        return this.validatorMethod(validator_1.default.isLowercase);
     }
     isMACAddress(options) {
-        return this.validatorMethod(validator.isMACAddress, options);
+        return this.validatorMethod(validator_1.default.isMACAddress, options);
     }
     isMagnetURI() {
-        return this.validatorMethod(validator.isMagnetURI);
+        return this.validatorMethod(validator_1.default.isMagnetURI);
     }
     isMD5() {
-        return this.validatorMethod(validator.isMD5);
+        return this.validatorMethod(validator_1.default.isMD5);
     }
     isMimeType() {
-        return this.validatorMethod(validator.isMimeType);
+        return this.validatorMethod(validator_1.default.isMimeType);
     }
     isMobilePhone(locale, options) {
-        return this.validatorMethod(validator.isMobilePhone, locale, options);
+        return this.validatorMethod(validator_1.default.isMobilePhone, locale, options);
     }
     isMongoId() {
-        return this.validatorMethod(validator.isMongoId);
+        return this.validatorMethod(validator_1.default.isMongoId);
     }
     isMultibyte() {
-        return this.validatorMethod(validator.isMultibyte);
+        return this.validatorMethod(validator_1.default.isMultibyte);
     }
     isNumeric(options) {
-        return this.validatorMethod(validator.isNumeric, options);
+        return this.validatorMethod(validator_1.default.isNumeric, options);
     }
     isOctal() {
-        return this.validatorMethod(validator.isOctal);
+        return this.validatorMethod(validator_1.default.isOctal);
     }
     isPassportNumber(countryCode) {
-        return this.validatorMethod(validator.isPassportNumber, countryCode);
+        return this.validatorMethod(validator_1.default.isPassportNumber, countryCode);
     }
     isPort() {
-        return this.validatorMethod(validator.isPort);
+        return this.validatorMethod(validator_1.default.isPort);
     }
     isPostalCode(locale) {
-        return this.validatorMethod(validator.isPostalCode, locale);
+        return this.validatorMethod(validator_1.default.isPostalCode, locale);
     }
     isRFC3339() {
-        return this.validatorMethod(validator.isRFC3339);
+        return this.validatorMethod(validator_1.default.isRFC3339);
     }
     isRgbColor(includePercentValues) {
-        return this.validatorMethod(validator.isRgbColor, includePercentValues);
+        return this.validatorMethod(validator_1.default.isRgbColor, includePercentValues);
     }
     isSemVer() {
-        return this.validatorMethod(validator.isSemVer);
+        return this.validatorMethod(validator_1.default.isSemVer);
     }
     isSlug() {
-        return this.validatorMethod(validator.isSlug);
+        return this.validatorMethod(validator_1.default.isSlug);
     }
     isStrongPassword(options) {
-        return this.validatorMethod(validator.isStrongPassword, options);
+        return this.validatorMethod(validator_1.default.isStrongPassword, options);
     }
     isSurrogatePair() {
-        return this.validatorMethod(validator.isSurrogatePair);
+        return this.validatorMethod(validator_1.default.isSurrogatePair);
     }
     isTaxID(locale) {
-        return this.validatorMethod(validator.isTaxID, locale);
+        return this.validatorMethod(validator_1.default.isTaxID, locale);
     }
     isUppercase() {
-        return this.validatorMethod(validator.isUppercase);
+        return this.validatorMethod(validator_1.default.isUppercase);
     }
     isURL(options) {
-        return this.validatorMethod(validator.isURL, options);
+        return this.validatorMethod(validator_1.default.isURL, options);
     }
     isUUID(version) {
-        return this.validatorMethod(validator.isUUID, version);
+        return this.validatorMethod(validator_1.default.isUUID, version);
     }
     isVariableWidth() {
-        return this.validatorMethod(validator.isVariableWidth);
+        return this.validatorMethod(validator_1.default.isVariableWidth);
     }
     isVAT(countryCode) {
-        return this.validatorMethod(validator.isVAT, countryCode);
+        return this.validatorMethod(validator_1.default.isVAT, countryCode);
     }
     isWhitelisted(chars) {
-        return this.validatorMethod(validator.isWhitelisted, chars);
+        return this.validatorMethod(validator_1.default.isWhitelisted, chars);
     }
     matches(pattern, modifiers) {
-        return this.validatorMethod(validator.matches, pattern, modifiers);
+        return this.validatorMethod(validator_1.default.matches, pattern, modifiers);
     }
     blacklist(chars) {
-        return this.sanitizerMethod(validator.blacklist, chars);
+        return this.sanitizerMethod(validator_1.default.blacklist, chars);
     }
     escape() {
-        return this.sanitizerMethod(validator.escape);
+        return this.sanitizerMethod(validator_1.default.escape);
     }
     ltrim(chars) {
-        return this.sanitizerMethod(validator.ltrim, chars);
+        return this.sanitizerMethod(validator_1.default.ltrim, chars);
     }
     normalizeEmail(options) {
-        return this.sanitizerMethod(validator.normalizeEmail, options);
+        return this.sanitizerMethod(validator_1.default.normalizeEmail, options);
     }
     rtrim(chars) {
-        return this.sanitizerMethod(validator.rtrim, chars);
+        return this.sanitizerMethod(validator_1.default.rtrim, chars);
     }
     stripLow(keep_new_lines) {
-        return this.sanitizerMethod(validator.stripLow, keep_new_lines);
+        return this.sanitizerMethod(validator_1.default.stripLow, keep_new_lines);
     }
     toBoolean(strict = true) {
-        return this.sanitizerMethod(validator.toBoolean, strict);
+        return this.sanitizerMethod(validator_1.default.toBoolean, strict);
     }
     toDate() {
-        return this.sanitizerMethod(validator.toDate);
+        return this.sanitizerMethod(validator_1.default.toDate);
     }
     toFloat() {
-        return this.sanitizerMethod(validator.toFloat);
+        return this.sanitizerMethod(validator_1.default.toFloat);
     }
     toInt(radix) {
-        return this.sanitizerMethod(validator.toInt, radix);
+        return this.sanitizerMethod(validator_1.default.toInt, radix);
     }
     toJSON() {
         return this.sanitizerMethod((str) => {
@@ -496,15 +501,16 @@ export default class ValidatorJSChain {
         });
     }
     toString() {
-        return this.sanitizerMethod(validator.toString);
+        return this.sanitizerMethod(validator_1.default.toString);
     }
     trim(chars) {
-        return this.sanitizerMethod(validator.trim, chars);
+        return this.sanitizerMethod(validator_1.default.trim, chars);
     }
     unescape() {
-        return this.sanitizerMethod(validator.unescape);
+        return this.sanitizerMethod(validator_1.default.unescape);
     }
     whitelist(chars) {
-        return this.sanitizerMethod(validator.whitelist, chars);
+        return this.sanitizerMethod(validator_1.default.whitelist, chars);
     }
 }
+exports.default = ValidatorJSChain;

@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "module": "ES2022",
-        "lib": ["ES2022", "DOM"],
+        "module": "CommonJS",
+        "lib": ["ES2022"],
         "target": "ES2022",
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
         "esModuleInterop": true,
         "baseUrl": ".",
         "types": ["node"],
@@ -17,6 +17,5 @@
         "alwaysStrict": true,
         "allowUnreachableCode": true,
     },
-    "include": ["./src/*.ts"],
-    "files": ["./node_modules/@types/mocha/index.d.ts", "./node_modules/@types/node/index.d.ts"]
+    "include": ["./src/*.ts"]
 }
