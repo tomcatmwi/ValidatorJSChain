@@ -520,6 +520,9 @@ export default class ValidatorJSChain {
     isPassportNumber(countryCode: PassportCountryCode) {
         return this.validatorMethod(validator.isPassportNumber, countryCode);
     }
+    isPhoneNumber() {
+        return this.validatorMethod((str: string) => new RegExp(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/ig).test(str))
+    }
     isPort() {
         return this.validatorMethod(validator.isPort);
     }
