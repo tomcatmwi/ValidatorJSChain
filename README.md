@@ -330,6 +330,10 @@ validatorJSChain()
   .custom(value => value.includes('he'))
 ```
 
+*Important:* Built-in sanitizers always stringify your value. Custom sanitizers never do. The function you pass as a custom sanitizer always receives the value as it is when it gets there in the validation chain.
+
+*Also important:* If you're working with non-primitive values, such as arrays or records, it's recommended to only use custom validators and sanitizers on them. Built-in validators and sanitizers always stringify their output.
+
 # Object reference
 
 ## Properties
