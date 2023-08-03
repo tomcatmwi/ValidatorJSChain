@@ -224,7 +224,11 @@ export default class ValidatorJSChain {
     //  Generic wrapper for all sanitizers
     private sanitizerMethod(executor: (...passedArgs) => any, ...args) {
         if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
-        const sanitizedValue = executor(String(this.input?.value), ...args);
+
+        //  We do not stringify for custom sanitizers
+        const isExecutorALocalMethod = (Object.getOwnPropertyNames(Object.getPrototypeOf(this)).includes(executor.name));
+        const sanitizedValue = executor(isExecutorALocalMethod ? String(this.input?.value) : this.input.value, ...args);
+        
         this.input.value = sanitizedValue;
 
         if (!this.status.results) this.status.results = {};
