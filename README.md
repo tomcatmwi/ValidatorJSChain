@@ -315,6 +315,38 @@ validatorJSChain
   .endif()
 ```
 
+It is also possible to compare the current value to other values in the validation chain. For example, you may want to validate an address. A US address requires a state to be specified, but a European address doesn't. Therefore a European address must have a `null` value for `state`, while an US address should have a string. Here is how to do it:
+
+```
+validatorJSChain
+  .clearResults()
+  
+  //  Validate country - it should be a 2 character code
+  .setValue('country', selectedCountry)
+  .isIn(['us', 'fr', 'gr', 'hu', 'cz', 'ru', 'it', 'es', 'uk'])
+  .withMessage('This is not a country we know')
+  .bail()
+
+  //  Validate state
+  .setValue('state', selectedState)
+  
+  // Country is US
+  .if((value, sanitized) => sanitized.country === 'us')
+    .isIn['AL', 'AK', 'AZ', 'AR' ... ]
+    .withMessage('Invalid state!')
+    .bail()
+  .endif()
+
+  //  Country is not US
+  .if((value, sanitized) => sanitized.country !== 'us')
+    .isEmpty()
+    .withMessage('This country has no states!')
+    .bail()
+  .endif()
+```
+
+Note that `sanitized` will only contain values that have been validated before. If you moved the state validator section before the country validators, `sanitized` would not have a `.country` node. If you want to validate your value against the user's raw input, you don't need `sanitized`.
+
 ## Custom validators and sanitizers
 
 User-defined validators and sanitizers can be created using the `.custom()` and `.customSanitizer()` methods.
@@ -357,7 +389,7 @@ validatorJSChain()
 | `custom(validator: (value: any) => boolean, ...args)`                    | Executes a custom validator. The passed function will receive the currently validated value as `value`, along with any arguments specified after.                                                                                                                                                                                                                                                       |
 | `customSanitizer(sanitizer: (value: any) => any, ...args)`               | Executes a custom sanitizer. Works the same way as `custom()`. The output of `sanitizer` will replace the currently validated value.                                                                                                                                                                                                                                                                    |
 | `default(value)`                                                         | If the value currently in the pipeline is falsy, this method changes it to the specified value.                                                                                                                                                                                                                                                                                                         |
-| `if(condition: (value: any) => boolean)`                                 | Validators and sanitizers after this method call will be skipped if the passed function returns `false`, until the next `endIf()` or `setValue()` call.                                                                                                                                                                                                                                                 |
+| `if(condition: (value: any, sanitized: Record<string, any>) => boolean)`                                 | Validators and sanitizers after this method call will be skipped if the passed function returns `false`, until the next `endIf()` or `setValue()` call. The `value` argument contains the currently validated value (as set by the last `setValue()` call), and `sanitized` contains all values already sanitized so far.                                                                                                                                                                               |
 | `optional()`                                                             | If the validated value is falsy, no more validators will be executed until the next `setValue()` call.                                                                                                                                                                                                                                                                                                  |
 | `not()`                                                                  | Inverts the next validator. An error will be detected if the value passes.                                                                                                                                                                                                                                                                                                                              |
 | `peek(executor: (value: any) => any)`                                    | Passes the currently validated value to `executor()` and runs it. The validation chain will not be affected. This method allows you to tap into the validation chain and extract the current value.                                                                                                                                                                                                     |

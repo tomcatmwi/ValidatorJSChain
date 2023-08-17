@@ -69,6 +69,8 @@ class ValidatorJSChain {
         return this.status.lastValidator;
     }
     clearResults() {
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
+            return this;
         this.status = { ...defaultValidatorStatus };
         return this;
     }
@@ -157,6 +159,8 @@ class ValidatorJSChain {
         return this;
     }
     default(value) {
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
+            return this;
         if (!this.input.value) {
             this.input.value = value === null ? null : String(value);
             this.status.results[this.input.label].value = value;
@@ -164,11 +168,15 @@ class ValidatorJSChain {
         return this;
     }
     optional() {
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
+            return this;
         if (this.input?.value === undefined || this.input?.value === null || this.input?.value === '')
             this.status.skipped = true;
         return this;
     }
     not() {
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
+            return this;
         this.status.invertNext = true;
         return this;
     }
@@ -180,13 +188,13 @@ class ValidatorJSChain {
         return this;
     }
     unbail() {
+        if (this.status.suspended || this.status.skipped)
+            return this;
         this.status.bailed = false;
         return this;
     }
     if(condition) {
-        if (this.status.bailed || this.status.suspended)
-            return this;
-        if (!condition(this.input?.value))
+        if (!condition(this.input?.value, this.status?.results))
             this.status.suspended = true;
         return this;
     }
@@ -215,6 +223,8 @@ class ValidatorJSChain {
         return this.sanitizerMethod(sanitizer, ...args);
     }
     peek(executor) {
+        if (this.status.bailed || this.status.suspended || this.status.skipped)
+            return this;
         executor(this.input.value);
         return this;
     }

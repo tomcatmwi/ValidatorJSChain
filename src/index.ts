@@ -124,6 +124,7 @@ export default class ValidatorJSChain {
 
     //  Clears all errors, chainable
     public clearResults() {
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
         this.status = { ...defaultValidatorStatus };
         return this;
     }
@@ -243,6 +244,8 @@ export default class ValidatorJSChain {
 
     //  Sets value
     public default(value: any) {
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
+
         if (!this.input.value) {
             this.input.value = value === null ? null : String(value);
             (this.status.results as Record<string, any>)[this.input.label as string].value = value;
@@ -252,6 +255,8 @@ export default class ValidatorJSChain {
 
     //  Skips further validation until the next setValue() if the value is falsy
     public optional() {
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
+
         if (this.input?.value === undefined || this.input?.value === null || this.input?.value === '')
             this.status.skipped = true;
         return this;
@@ -260,6 +265,8 @@ export default class ValidatorJSChain {
     //  Sets the invertNext flag, which indicates that the next validator should be negated
     //  The flag is reset after calling the validator, setting a new value or clearing the status
     public not() {
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
+
         this.status.invertNext = true;
         return this;
     }
@@ -275,15 +282,17 @@ export default class ValidatorJSChain {
 
     //  Unbails the chain and continues
     public unbail() {
+        if (this.status.suspended || this.status.skipped) return this;
+
         this.status.bailed = false;
         return this;
     }
 
     //  Conditional validator wrapper
     //  If the condition evaluates to true, the next validators will not run until an endif() is found
-    public if(condition: (value: any) => boolean) {
-        if (this.status.bailed || this.status.suspended) return this;
-        if (!condition(this.input?.value)) this.status.suspended = true;
+    public if(condition: (value: any, sanitized?: Record<string, any>) => boolean) {
+        if (!condition(this.input?.value, this.status?.results)) 
+            this.status.suspended = true;
         return this;
     }
 
@@ -323,6 +332,7 @@ export default class ValidatorJSChain {
 
     //  Allows the extraction of the current value
     public peek(executor: (value: any) => any) {
+        if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
         executor(this.input.value);
         return this;
     }
