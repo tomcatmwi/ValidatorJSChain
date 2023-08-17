@@ -291,7 +291,12 @@ export default class ValidatorJSChain {
     //  Conditional validator wrapper
     //  If the condition evaluates to true, the next validators will not run until an endif() is found
     public if(condition: (value: any, sanitized?: Record<string, any>) => boolean) {
-        if (!condition(this.input?.value, this.status?.results)) 
+
+        const results = {}
+        Object.keys({ ...this.status?.results || {} })
+            .forEach(key => results[key] = (this.status?.results?.[key] as any).value);
+
+        if (!condition(this.input?.value, results)) 
             this.status.suspended = true;
         return this;
     }
@@ -591,6 +596,16 @@ export default class ValidatorJSChain {
     blacklist(chars: string) {
         return this.sanitizerMethod(validator.blacklist, chars);
     }
+    capitalize(all: boolean = false) {
+        return this.sanitizerMethod((str: string) => {
+            if (!str || str.length <= 0) return str;
+
+            return all ?
+            str.toUpperCase()
+            :
+            str.charAt(0).toUpperCase() + str.slice(1);
+        });
+    }    
     escape() {
         return this.sanitizerMethod(validator.escape);
     }

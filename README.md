@@ -347,6 +347,8 @@ validatorJSChain
 
 Note that `sanitized` will only contain values that have been validated before. If you moved the state validator section before the country validators, `sanitized` would not have a `.country` node. If you want to validate your value against the user's raw input, you don't need `sanitized`.
 
+Conditionals cannot be nested. An `.endif()` clears all conditions set previously.
+
 ## Custom validators and sanitizers
 
 User-defined validators and sanitizers can be created using the `.custom()` and `.customSanitizer()` methods.

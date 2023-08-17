@@ -194,7 +194,10 @@ class ValidatorJSChain {
         return this;
     }
     if(condition) {
-        if (!condition(this.input?.value, this.status?.results))
+        const results = {};
+        Object.keys({ ...this.status?.results || {} })
+            .forEach(key => results[key] = (this.status?.results?.[key]).value);
+        if (!condition(this.input?.value, results))
             this.status.suspended = true;
         return this;
     }
@@ -476,6 +479,16 @@ class ValidatorJSChain {
     }
     blacklist(chars) {
         return this.sanitizerMethod(validator_1.default.blacklist, chars);
+    }
+    capitalize(all = false) {
+        return this.sanitizerMethod((str) => {
+            if (!str || str.length <= 0)
+                return str;
+            return all ?
+                str.toUpperCase()
+                :
+                    str.charAt(0).toUpperCase() + str.slice(1);
+        });
     }
     escape() {
         return this.sanitizerMethod(validator_1.default.escape);
