@@ -8,7 +8,7 @@ const defaultValidatorStatus = {
     bailed: false,
     suspended: false,
     skipped: false,
-    invertNext: false,
+    invertNext: false
 };
 class ValidatorJSChain {
     constructor() { }
@@ -92,8 +92,20 @@ class ValidatorJSChain {
         if (this.status.bailed || this.status.suspended)
             return this;
         this.status.skipped = false;
-        if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label)))
+        if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label))) {
+            console.log('--------------------------------------------------------');
+            if (!label) {
+                console.log('No label!');
+                console.log(value);
+            }
+            if (!!label) {
+                console.log(label);
+                console.log(!!this.status.results);
+                console.log(Object.keys(this.status.results).includes(label));
+            }
+            console.log('--------------------------------------------------------');
             throw `Invalid validation chain label: "${String(label)}"`;
+        }
         if (convertToString) {
             if (!!value && typeof value === 'object')
                 value = JSON.stringify(value);
