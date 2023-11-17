@@ -154,16 +154,6 @@ export default class ValidatorJSChain {
 
         //  If this label already exists in the chain, throw an error
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results as object).includes(label))) {
-
-            console.log('--------------------------------------------------------');
-            if (!!label) {
-                console.log(label);
-                console.log(!!this.status.results);
-                console.log(Object.keys(this.status.results as object).includes(label));
-                console.dir(this.status);
-            }
-            console.log('--------------------------------------------------------');
-
             throw `Invalid validation chain label: "${String(label)}"`;
         }
 
