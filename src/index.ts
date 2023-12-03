@@ -244,11 +244,11 @@ export default class ValidatorJSChain {
     }
 
     //  Sets value
-    public default(value: any) {
+    public default(value: any, stringify: boolean = true) {
         if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
 
         if (!this.input.value) {
-            this.input.value = value === null ? null : String(value);
+            this.input.value = value === null ? null : (stringify ? String(value) : value);
             (this.status.results as Record<string, any>)[this.input.label as string].value = value;
         }
         return this;
