@@ -93,17 +93,6 @@ class ValidatorJSChain {
             return this;
         this.status.skipped = false;
         if (!label || (!!label && !!this.status.results && Object.keys(this.status.results).includes(label))) {
-            console.log('--------------------------------------------------------');
-            if (!label) {
-                console.log('No label!');
-                console.log(value);
-            }
-            if (!!label) {
-                console.log(label);
-                console.log(!!this.status.results);
-                console.log(Object.keys(this.status.results).includes(label));
-            }
-            console.log('--------------------------------------------------------');
             throw `Invalid validation chain label: "${String(label)}"`;
         }
         if (convertToString) {
@@ -170,11 +159,12 @@ class ValidatorJSChain {
         };
         return this;
     }
-    default(value) {
+    default(value, stringify = true) {
         if (this.status.bailed || this.status.suspended || this.status.skipped)
             return this;
+        const newValue = value === null ? null : (stringify ? String(value) : value);
         if (!this.input.value) {
-            this.input.value = value === null ? null : String(value);
+            this.input.value = newValue;
             this.status.results[this.input.label].value = value;
         }
         return this;

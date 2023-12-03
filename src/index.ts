@@ -247,8 +247,11 @@ export default class ValidatorJSChain {
     public default(value: any, stringify: boolean = true) {
         if (this.status.bailed || this.status.suspended || this.status.skipped) return this;
 
+        const newValue = value === null ? null : (stringify ? String(value) : value);
+
         if (!this.input.value) {
-            this.input.value = value === null ? null : (stringify ? String(value) : value);
+            this.input.value = newValue;
+
             (this.status.results as Record<string, any>)[this.input.label as string].value = value;
         }
         return this;
