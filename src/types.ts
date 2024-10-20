@@ -740,6 +740,12 @@ export interface NormalizeEmailOptions {
     icloud_remove_subaddress?: boolean;
 }
 
+export interface ToSQLDateOptions {
+    day_start?: boolean;
+    day_end?: boolean;
+}
+
+
 //  Input format for setValue()
 export interface ValidatorJSChainInput {
     label: string | null;

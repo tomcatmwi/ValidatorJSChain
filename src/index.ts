@@ -34,6 +34,7 @@ import {
     PassportCountryCode,
     PostalCodeLocale,
     TaxIDLocale,
+    ToSQLDateOptions,
     UUIDVersion,
     VATCountryCode,
     ValidatorJSChainStatus,
@@ -644,6 +645,35 @@ export default class ValidatorJSChain {
             } catch (err) {
                 return err.message;
             }
+        });
+    }
+    toSqlDate() {
+        return this.sanitizerMethod((str: string | Date, options: ToSQLDateOptions) => {
+
+            let date: Date;
+
+            if (typeof str === 'string') {
+                if (isNaN(Date.parse(str)))
+                    return null;
+                date = new Date(str);
+            } else if (str.constructor.name === 'Date')
+                date = str
+            else
+                return null;
+            
+            if (options.day_start) {
+                date.setHours(0);
+                date.setMinutes(0);
+                date.setSeconds(0);
+            } 
+            else if (options.day_end) {
+                date.setHours(23)
+                date.setMinutes(59);
+                date.setSeconds(59);
+                date.setSeconds(59);
+            }
+            
+            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${date.toTimeString().slice(0, 9)}`;           
         });
     }
     toString() {

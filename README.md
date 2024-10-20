@@ -1,9 +1,12 @@
 # ValidatorJSChain
 
-### Version 1.11
+### Version 1.9.1
 
 A framework-agnostic validator and sanitizer chain inspired by `express-validator`. Very useful for GraphQL resolvers!
-Experimental, still under development. Please report bugs so I can ignore them.
+
+Not experimental any more! Serving faithfully in many of our projects, both frontend and backend.
+
+Please still report bugs so I can ignore them. (Never got a single report.)
 
 ## How to install
 
@@ -49,7 +52,6 @@ console.log(validatorJSChain.results);
 The output will be:
 
 ```
-0
 {
   "myEmailAddress": {
     "value": "somedude@company.com",
@@ -398,3 +400,14 @@ validatorJSChain()
 | `setValue(label: string, value: any, unbail = false, convertToString = true)`        | Sets a new value to be validated.<br />`label` Label of the validator for the results list<br />`value` The value to be validated or sanitized<br />`unbail` If earlier you called `.bail()`, and this argument is `false`, `bail()` will remain in effect. All validators and sanitizers will still be skipped.<br />`convertToString` Converts the validated value to a string. This is important because `validate.js` can only handle strings. However, if it's important to preserve the original type, turn this flag to `false`. In this case, you can only use custom validators and sanitizers (`custom` and `customSanitizer`) or your code will throw an exception!                                                                                        |
 | `unbail()`                                                               | If `bail()` was called earlier, the execution of the chain resumes after calling this method.                                                                                                                                                                                                                                                                                                           |
 | `withMessage(generator: (value?: any) => string \| Record<string, any>)` | Adds a custom error message. If the previous validator did not pass, the output of `generator()` will be added to the error message as `message`.                                                                                                                                                                                                                                                       |
+
+## Custom sanitizers
+
+These are unique to `ValidatorJSChain` and not part of the original `validator.js` package.
+
+| Sanitizer | Explanation                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `capitalize(value: string)`        | Capitalizes a string (so you won't need to write a custom sanitizer for a simple `.toUpperCase()`) |
+| `toJSON(value: string)`        | Converts a string to a JSON object. Returns the error message on failure. |
+| `toSQLDate(value: string \| Date, options: { day_start: boolean, day_end: boolean })`        | Converts a string to a Javascript `Date` object, then to a SQL-compatible `'YYYY-mm-dd HH:ii:ss'` date string. Returns `null` if the string cannot be parsed to a `Date`. Optionally accepts a `Date` too.<br />`day_start` sets the time to `00:00:00`<br />`day_end` sets the time to `23:59:59` if `day_start` isn't `true` |
+| `trim(value: string)`        | Trims a string value |
