@@ -647,8 +647,8 @@ export default class ValidatorJSChain {
             }
         });
     }
-    toSqlDate() {
-        return this.sanitizerMethod((str: string | Date, options: ToSQLDateOptions) => {
+    toSqlDate(options: ToSQLDateOptions = { day_start: false, day_end: false }) {
+        return this.sanitizerMethod((str: string | Date) => {
 
             let date: Date;
 
@@ -660,13 +660,13 @@ export default class ValidatorJSChain {
                 date = str
             else
                 return null;
-            
-            if (options.day_start) {
+
+            if (options?.day_start) {
                 date.setHours(0);
                 date.setMinutes(0);
                 date.setSeconds(0);
             } 
-            else if (options.day_end) {
+            else if (options?.day_end) {
                 date.setHours(23)
                 date.setMinutes(59);
                 date.setSeconds(59);
