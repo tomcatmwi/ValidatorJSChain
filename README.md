@@ -274,7 +274,7 @@ If the first `.isLength()` validator fails, the following `.isEmail()` and `.isI
 
 ## Custom error messages
 
-If the simple `error` flag won't do, you can define custom error messages with the `.withMessage()` method. The parameter can also be a `Record<string, any>` or a function as `(value: any) => (string | Record<string, any>)`
+If the simple `error` flag won't do, you can define custom error messages with the `.withMessage()` method. The parameter can also be a `Record<string, any>` or a function as `(value: any) => (string | Record<string, any>)`. The value, or the output of the function will be added to the error messages.
 
 ```
 validatorJSChain
@@ -300,8 +300,6 @@ Output:
   }
 }
 ```
-
-The function passed to `withMessage()` may return any data type, including objects or arrays.
 
 ## Conditionals
 
