@@ -1,6 +1,6 @@
 # ValidatorJSChain
 
-### Version 1.9.1
+### Version 1.9.2
 
 A framework-agnostic validator and sanitizer chain inspired by `express-validator`. Very useful for GraphQL resolvers!
 
