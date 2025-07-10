@@ -217,7 +217,7 @@ class ValidatorJSChain {
             const results = this.status.results;
             const lastResult = results[label][this.status.lastValidator];
             if (lastResult.error)
-                lastResult.message = message;
+                lastResult.message = typeof message === 'function' ? message(this.input.value) : message;
         }
         return this;
     }

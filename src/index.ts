@@ -313,7 +313,7 @@ export default class ValidatorJSChain {
     }
 
     //  Replaces the last error message in the errors array with the output of a custom function
-    public withMessage(message: string | Record<string, string>) {
+    public withMessage(message: string | Record<string, any> | ((value: any) => (string | Record<string, any>))) {
         //  prettier-ignore
         if (
             !this.status.bailed &&
@@ -325,7 +325,7 @@ export default class ValidatorJSChain {
             const label: string = this.input.label;
             const results: Record<string, any> = this.status.results;
             const lastResult = results[label][this.status.lastValidator];
-            if (lastResult.error) lastResult.message = message;
+            if (lastResult.error) lastResult.message = typeof message === 'function' ? message(this.input.value) : message;
         }
         return this;
     }
